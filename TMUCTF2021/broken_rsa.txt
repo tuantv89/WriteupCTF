@@ -1,0 +1,41 @@
+from Crypto.Util.number import *
+from functools import reduce
+
+
+def factoring_mersenne(n):
+    x = 2
+    while True:
+        p = 2 ** x - 1
+        if n % p == 0:
+            return p, n // p
+        x += 1
+
+
+with open("output.txt", "r") as f:
+    output = f.readlines()
+enc = [int(o.strip()) for o in output]
+
+pads = [b'\x04', b'\x02', b'\x00', b'\x01', b'\x03']
+M = []
+for i in range(len(pads)):
+    for j in range(len(pads)):
+        msg = pads[j] * (i + 1) + b'TMUCTF' + pads[len(pads) - j - 1] * (i + 1)
+        M.append(bytes_to_long(msg))
+
+M256 = []
+for m1 in M:
+    for m2 in M:
+        if m1 * 256 == m2:
+            M256.append((m1, m2))
+
+E256 = [(enc[M.index(m[0])], enc[M.index(m[1])]) for m in M256]
+
+e = 65537
+t = 256 ** e
+n = reduce(lambda x, y: GCD(x, y), [t * ee[0] - ee[1] for ee in E256])
+print("n=",n)
+p, q = factoring_mersenne(n)
+phi = (p - 1) * (q - 1)
+d = pow(e, -1, phi)
+flag = long_to_bytes(pow(enc[-1], d, n))
+print(flag.decode())

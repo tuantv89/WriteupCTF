@@ -1,0 +1,57 @@
+
+from Crypto.Util.number import *
+import base64
+from pwn import *
+import string
+from Crypto.Cipher import AES
+from base64 import b64encode
+def out(s):
+    for i in range(0, len(s), 32):
+        print(s[i:(i+32)], end=" ")
+    print()
+import binascii
+#r = remote("pwn-2021.duc.tf", '31914')
+# found = ""
+# for i in range(1, 17):
+#     try:
+#         r.recvuntil("plaintext:\n")
+#         tmp = 'a'*(16-i)
+#         print("tmp:", tmp, end=" ")
+#         print(len(tmp))
+#         r.sendline(tmp)
+#         s = r.recvline().strip()
+#         s = base64.b64decode(s).hex()
+#         out(s)
+#         for j in (string.printable):
+#             try:
+#                 ct = 'a'*(16-i)+found+j
+#                 print("j:", j, end=" ")
+#                 print(len(ct))
+#                 r.recvuntil("plaintext:\n")
+#                 r.sendline(ct)
+#                 res = r.recvline().strip()
+#                 res = base64.b64decode(res).hex()
+#                 #out(res)
+#                 if(res[64:96] == s[64:96] and s[96:] != res[96:]):
+#                     print("found:", j)
+#                     found += j
+#                     break
+
+#                 print(found)
+#             except:
+#                 r = remote("pwn-2021.duc.tf", '31914')
+#         print(found)
+
+#     except:
+#         r = remote("pwn-2021.duc.tf", '31914')
+key=b"!_SECRETSOURCE_!"
+def decode(pt):
+    cipher = AES.new(key, AES.MODE_ECB)
+    ct = cipher.decrypt(pt)
+    return ct
+flag="8MAq3pGs7/KTcv0c3ijqTJhv/z9V8QA7l9TkMkU72YJN8jgrU3lwgaZYItQD8O+/ySPAtunw8lTSmucLjij7WA=="
+ff=base64.b64decode(flag).hex()
+ff=bytes.fromhex(ff)
+print(decode(ff))
+
+

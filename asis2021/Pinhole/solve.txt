@@ -1,0 +1,35 @@
+def correct_F_matrix(F):
+    for row in F:
+        for p in row:
+            deg = p.degree()
+            if deg not in range(1, 5):
+                return False
+            if p[deg] != 1:
+                return False
+            for i in range(1, deg):
+                if p[i] not in range(-3, 4):
+                    return False
+    return True
+
+def gen_correct_M():
+    for M in all_random_sl2z():
+        M_inv = M**(-1)
+        F0 = M_inv * X * M
+        F1 = M_inv * Y * M
+        if correct_F_matrix(F0) and correct_F_matrix(F1):
+            yield M
+
+# Calculate M and a
+for M in gen_correct_M():
+    M_inv = M**(-1)
+    F0 = M_inv * X * M
+    F1 = M_inv * Y * M
+    eqs = []
+    a = var('a')
+    print(f'{M = }')
+    print(f'{F0 = }')
+    print(f'{F1 = }')
+    for row0, row1 in zip(F0, F1):
+        for p0, p1 in zip(row0, row1):
+            eqs.append(p0(a) == p1(a))
+    print('solution:', solve(eqs, a))

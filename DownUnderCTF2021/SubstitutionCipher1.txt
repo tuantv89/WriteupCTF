@@ -1,0 +1,19 @@
+def encrypt(msg, f):
+    return ''.join(chr(f.substitute(c)) for c in msg)
+
+P.<x> = PolynomialRing(ZZ)
+f = 13*x^2 + 3*x + 7
+FLAG = open('output.txt', 'r').read().strip()
+l=[]
+ans=""
+for c in FLAG:
+    print(ord(c))
+    f = 13*x^2 + 3*x + 7 - ord(c)
+    t=str(f.roots())
+    t=t.replace('(','')
+    t=t.replace(')','')
+    l=t.split(',')
+    print(int(l[0][1:]))
+    l.append(chr(int(l[0][1:])))
+    ans+=chr(int(l[0][1:]))
+print(ans)

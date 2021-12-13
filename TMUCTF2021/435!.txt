@@ -1,0 +1,40 @@
+from Crypto.Cipher import AES
+import binascii, sys, hashlib
+import string
+cipher = b'9**********b4381646*****01********************8b9***0485******************************0**ab3a*cc5e**********18a********5383e7f**************1b3*******9f43fd66341f3ef3fab2bbfc838b9ef71867c3bcbb'
+KEYSIZE = 16
+def pad(message):
+    p = bytes((KEYSIZE - len(message) % KEYSIZE) * chr(KEYSIZE - len(message) % KEYSIZE),encoding='utf-8')
+    return message + p
+def xor(a, b):
+    return bytes(x ^ y for x, y in zip(a, b))
+def decrypt(message, passphrase, iv):
+    aes = AES.new(passphrase, AES.MODE_CBC, iv)
+    return aes.decrypt(message)
+def find_key():
+    keytmp = '{}XhN2{}8d%8Slp3{}v'
+    for c1 in string.printable:
+        for c2 in string.printable:
+            for c3 in string.printable:
+                k= keytmp.format(c1, c2,c3).encode('utf8')
+                h = hashlib.sha256(k).hexdigest()
+                SECRET = binascii.unhexlify(h)[:10]
+                aes = AES.new(k, AES.MODE_ECB)
+                if xor(aes.decrypt(binascii.unhexlify(cipher[-32:]))[-5:], binascii.unhexlify(cipher[-42:-32])) == bytes(chr(10) * 5,encoding='utf-8'):
+                   print(k)
+                   print(SECRET)
+                   return
+
+find_key()
+
+key = b'0XhN2!8d%8Slp3Ov'
+h = hashlib.sha256(key).hexdigest()
+hidden = binascii.unhexlify(h)[:10]
+message =  pad(b'CBC (Cipher Blocker Chaining) is an advanced form of block cipher encryption'+hidden)
+ct = binascii.unhexlify(cipher[-32:])
+aes = AES.new(key, AES.MODE_ECB)
+for i in range(5):
+    ct = xor(aes.decrypt(ct), message[-16:])
+    message = message[:-16]
+iv = xor(aes.decrypt(ct), message[-16:])
+print(iv)
