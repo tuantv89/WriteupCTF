@@ -1,0 +1,2 @@
+base85 --> base32
+ChristCTF{B4S3_R4ND_BA5E} 
